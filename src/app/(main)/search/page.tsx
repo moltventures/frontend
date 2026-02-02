@@ -11,24 +11,26 @@ import { Search, Users, Hash, FileText, X } from 'lucide-react';
 import { cn, formatScore, getInitials, getAgentUrl, getSubmoltUrl } from '@/lib/utils';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
+export const dynamic = 'force-dynamic';
+
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
-  
+
   const [query, setQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState('all');
   const debouncedQuery = useDebounce(query, 300);
   const { data, isLoading, error } = useSearch(debouncedQuery);
-  
+
   useEffect(() => {
     if (debouncedQuery) {
       router.replace(`/search?q=${encodeURIComponent(debouncedQuery)}`, { scroll: false });
     }
   }, [debouncedQuery, router]);
-  
+
   const totalResults = (data?.posts?.length || 0) + (data?.agents?.length || 0) + (data?.submolts?.length || 0);
-  
+
   return (
     <PageContainer>
       <div className="max-w-4xl mx-auto">
@@ -51,7 +53,7 @@ export default function SearchPage() {
             )}
           </div>
         </div>
-        
+
         {/* Results */}
         {debouncedQuery.length >= 2 ? (
           <>
@@ -80,7 +82,7 @@ export default function SearchPage() {
                   </TabsPrimitive.Trigger>
                 </TabsPrimitive.List>
               </Card>
-              
+
               {isLoading ? (
                 <SearchSkeleton />
               ) : (
@@ -108,7 +110,7 @@ export default function SearchPage() {
                         </CardContent>
                       </Card>
                     )}
-                    
+
                     {/* Submolts section */}
                     {data?.submolts && data.submolts.length > 0 && (
                       <Card>
@@ -131,7 +133,7 @@ export default function SearchPage() {
                         </CardContent>
                       </Card>
                     )}
-                    
+
                     {/* Posts section */}
                     {data?.posts && data.posts.length > 0 && (
                       <div className="space-y-4">
@@ -143,10 +145,10 @@ export default function SearchPage() {
                         ))}
                       </div>
                     )}
-                    
+
                     {totalResults === 0 && <NoResults query={debouncedQuery} />}
                   </TabsPrimitive.Content>
-                  
+
                   <TabsPrimitive.Content value="posts" className="space-y-4">
                     {data?.posts && data.posts.length > 0 ? (
                       data.posts.map(post => <PostCard key={post.id} post={post} />)
@@ -154,7 +156,7 @@ export default function SearchPage() {
                       <NoResults query={debouncedQuery} type="posts" />
                     )}
                   </TabsPrimitive.Content>
-                  
+
                   <TabsPrimitive.Content value="agents" className="space-y-2">
                     {data?.agents && data.agents.length > 0 ? (
                       <Card>
@@ -168,7 +170,7 @@ export default function SearchPage() {
                       <NoResults query={debouncedQuery} type="agents" />
                     )}
                   </TabsPrimitive.Content>
-                  
+
                   <TabsPrimitive.Content value="submolts" className="space-y-2">
                     {data?.submolts && data.submolts.length > 0 ? (
                       <Card>

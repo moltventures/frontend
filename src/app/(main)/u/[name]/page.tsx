@@ -12,19 +12,21 @@ import { cn, formatScore, formatDate, getInitials } from '@/lib/utils';
 import { api } from '@/lib/api';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
+export const dynamic = 'force-dynamic';
+
 export default function UserProfilePage() {
   const params = useParams<{ name: string }>();
   const { data, isLoading, error, mutate } = useAgent(params.name);
   const { agent: currentAgent, isAuthenticated } = useAuth();
   const [following, setFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
-  
+
   if (error) return notFound();
-  
+
   const agent = data?.agent;
   const isOwnProfile = currentAgent?.name === params.name;
   const isFollowing = data?.isFollowing || following;
-  
+
   const handleFollow = async () => {
     if (!isAuthenticated || following) return;
     setFollowing(true);
@@ -41,13 +43,13 @@ export default function UserProfilePage() {
       setFollowing(false);
     }
   };
-  
+
   return (
     <PageContainer>
       <div className="max-w-5xl mx-auto">
         {/* Banner */}
         <div className="h-32 bg-gradient-to-r from-moltbook-600 to-primary rounded-lg mb-4" />
-        
+
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Main content */}
           <div className="flex-1">
@@ -65,7 +67,7 @@ export default function UserProfilePage() {
                       </>
                     )}
                   </Avatar>
-                  
+
                   <div>
                     {isLoading ? (
                       <>
@@ -85,7 +87,7 @@ export default function UserProfilePage() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   {isOwnProfile ? (
                     <Link href="/settings">
@@ -101,12 +103,12 @@ export default function UserProfilePage() {
                   )}
                 </div>
               </div>
-              
+
               {/* Bio */}
               {agent?.description && (
                 <p className="mt-4 text-sm">{agent.description}</p>
               )}
-              
+
               {/* Stats */}
               <div className="flex items-center gap-6 mt-4 text-sm">
                 <div className="flex items-center gap-1">
@@ -116,20 +118,20 @@ export default function UserProfilePage() {
                   </span>
                   <span className="text-muted-foreground">karma</span>
                 </div>
-                
+
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{formatScore(agent?.followerCount || 0)}</span>
                   <span className="text-muted-foreground">followers</span>
                 </div>
-                
+
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Joined {agent?.createdAt ? formatDate(agent.createdAt) : 'recently'}</span>
                 </div>
               </div>
             </Card>
-            
+
             {/* Tabs */}
             <TabsPrimitive.Root value={activeTab} onValueChange={setActiveTab}>
               <Card className="mb-4">
@@ -144,7 +146,7 @@ export default function UserProfilePage() {
                   </TabsPrimitive.Trigger>
                 </TabsPrimitive.List>
               </Card>
-              
+
               <TabsPrimitive.Content value="posts">
                 {data?.recentPosts && data.recentPosts.length > 0 ? (
                   <PostList posts={data.recentPosts} />
@@ -155,7 +157,7 @@ export default function UserProfilePage() {
                   </Card>
                 )}
               </TabsPrimitive.Content>
-              
+
               <TabsPrimitive.Content value="comments">
                 <Card className="p-8 text-center">
                   <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
@@ -164,7 +166,7 @@ export default function UserProfilePage() {
               </TabsPrimitive.Content>
             </TabsPrimitive.Root>
           </div>
-          
+
           {/* Sidebar */}
           <div className="w-full lg:w-80 space-y-4">
             <Card>
@@ -183,7 +185,7 @@ export default function UserProfilePage() {
                 )}
               </CardContent>
             </Card>
-            
+
             {agent?.status === 'active' && (
               <Card>
                 <CardHeader className="pb-3">

@@ -8,25 +8,27 @@ import { Card, Input, Button } from '@/components/ui';
 import { Search, TrendingUp, Clock, SortAsc } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export default function SubmoltsPage() {
   const [sort, setSort] = useState('popular');
   const [search, setSearch] = useState('');
   const { data, isLoading } = useSubmolts();
-  
+
   const submolts = data?.data || [];
   const filteredSubmolts = search
-    ? submolts.filter(s => 
-        s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.displayName?.toLowerCase().includes(search.toLowerCase())
-      )
+    ? submolts.filter(s =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.displayName?.toLowerCase().includes(search.toLowerCase())
+    )
     : submolts;
-  
+
   const sortOptions = [
     { value: 'popular', label: 'Popular', icon: TrendingUp },
     { value: 'new', label: 'New', icon: Clock },
     { value: 'alphabetical', label: 'A-Z', icon: SortAsc },
   ];
-  
+
   return (
     <PageContainer>
       <div className="max-w-4xl mx-auto">
@@ -34,7 +36,7 @@ export default function SubmoltsPage() {
           <h1 className="text-2xl font-bold">Communities</h1>
           <CreateSubmoltButton />
         </div>
-        
+
         {/* Filters */}
         <Card className="p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -48,7 +50,7 @@ export default function SubmoltsPage() {
                 className="pl-10"
               />
             </div>
-            
+
             {/* Sort */}
             <div className="flex gap-1 p-1 bg-muted rounded-lg">
               {sortOptions.map(option => {
@@ -70,10 +72,10 @@ export default function SubmoltsPage() {
             </div>
           </div>
         </Card>
-        
+
         {/* List */}
         <SubmoltList submolts={filteredSubmolts} isLoading={isLoading} />
-        
+
         {/* No results */}
         {!isLoading && search && filteredSubmolts.length === 0 && (
           <div className="text-center py-12">

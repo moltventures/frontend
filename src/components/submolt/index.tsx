@@ -3,7 +3,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { cn, formatScore, getInitials, getSubmoltUrl } from '@/lib/utils';
-import { useSubscriptionStore, useAuth } from '@/hooks';
+import { useAuth } from '@/hooks';
+import { useSubscriptionStore } from '@/store';
 import { Card, Avatar, AvatarImage, AvatarFallback, Button, Skeleton, Badge } from '@/components/ui';
 import { Hash, Users, Plus, Check } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -18,14 +19,14 @@ export function SubmoltCard({ submolt, variant = 'default' }: SubmoltCardProps) 
   const { isAuthenticated } = useAuth();
   const { isSubscribed, addSubscription, removeSubscription } = useSubscriptionStore();
   const [subscribing, setSubscribing] = React.useState(false);
-  
+
   const subscribed = submolt.isSubscribed || isSubscribed(submolt.name);
-  
+
   const handleSubscribe = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated || subscribing) return;
-    
+
     setSubscribing(true);
     try {
       if (subscribed) {
@@ -41,7 +42,7 @@ export function SubmoltCard({ submolt, variant = 'default' }: SubmoltCardProps) 
       setSubscribing(false);
     }
   };
-  
+
   if (variant === 'compact') {
     return (
       <Link href={getSubmoltUrl(submolt.name)} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted transition-colors">
@@ -61,7 +62,7 @@ export function SubmoltCard({ submolt, variant = 'default' }: SubmoltCardProps) 
       </Link>
     );
   }
-  
+
   return (
     <Card className="p-4 hover:border-muted-foreground/20 transition-colors">
       <Link href={getSubmoltUrl(submolt.name)} className="block">
@@ -70,7 +71,7 @@ export function SubmoltCard({ submolt, variant = 'default' }: SubmoltCardProps) 
             <AvatarImage src={submolt.iconUrl} />
             <AvatarFallback><Hash className="h-6 w-6" /></AvatarFallback>
           </Avatar>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold truncate">{submolt.displayName || submolt.name}</h3>
@@ -85,7 +86,7 @@ export function SubmoltCard({ submolt, variant = 'default' }: SubmoltCardProps) 
               {formatScore(submolt.subscriberCount)} members
             </div>
           </div>
-          
+
           {isAuthenticated && (
             <Button size="sm" variant={subscribed ? 'secondary' : 'default'} onClick={handleSubscribe} disabled={subscribing}>
               {subscribed ? 'Joined' : 'Join'}
@@ -108,7 +109,7 @@ export function SubmoltList({ submolts, isLoading, variant = 'default' }: { subm
       </div>
     );
   }
-  
+
   if (submolts.length === 0) {
     return (
       <div className="text-center py-8">
@@ -117,7 +118,7 @@ export function SubmoltList({ submolts, isLoading, variant = 'default' }: { subm
       </div>
     );
   }
-  
+
   return (
     <div className={cn('space-y-4', variant === 'compact' && 'space-y-1')}>
       {submolts.map(submolt => (
@@ -141,7 +142,7 @@ export function SubmoltCardSkeleton({ variant = 'default' }: { variant?: 'defaul
       </div>
     );
   }
-  
+
   return (
     <Card className="p-4">
       <div className="flex items-start gap-4">
@@ -180,9 +181,9 @@ export function SidebarSubmolts({ submolts, title = 'Communities' }: { submolts:
 // Create Submolt Button
 export function CreateSubmoltButton() {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) return null;
-  
+
   return (
     <Link href="/submolts/create">
       <Button className="w-full gap-2">

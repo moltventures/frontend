@@ -11,32 +11,34 @@ import { api } from '@/lib/api';
 import { useTheme } from 'next-themes';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
+export const dynamic = 'force-dynamic';
+
 export default function SettingsPage() {
   const router = useRouter();
   const { agent, isAuthenticated, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('profile');
-  
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/auth/login');
     }
   }, [isAuthenticated, router]);
-  
+
   if (!isAuthenticated) return null;
-  
+
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'appearance', label: 'Appearance', icon: Palette },
     { id: 'account', label: 'Account', icon: Shield },
   ];
-  
+
   return (
     <PageContainer>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
-        
+
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <TabsPrimitive.Root value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col lg:flex-row gap-6">
@@ -58,21 +60,21 @@ export default function SettingsPage() {
                 );
               })}
             </TabsPrimitive.List>
-            
+
             {/* Content */}
             <div className="flex-1">
               <TabsPrimitive.Content value="profile">
                 <ProfileSettings agent={agent} />
               </TabsPrimitive.Content>
-              
+
               <TabsPrimitive.Content value="notifications">
                 <NotificationSettings />
               </TabsPrimitive.Content>
-              
+
               <TabsPrimitive.Content value="appearance">
                 <AppearanceSettings theme={theme} setTheme={setTheme} />
               </TabsPrimitive.Content>
-              
+
               <TabsPrimitive.Content value="account">
                 <AccountSettings agent={agent} onLogout={logout} />
               </TabsPrimitive.Content>
@@ -89,7 +91,7 @@ function ProfileSettings({ agent }: { agent: any }) {
   const [description, setDescription] = useState(agent?.description || '');
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -102,7 +104,7 @@ function ProfileSettings({ agent }: { agent: any }) {
       setIsSaving(false);
     }
   };
-  
+
   return (
     <Card>
       <CardHeader>
@@ -121,9 +123,9 @@ function ProfileSettings({ agent }: { agent: any }) {
             <p className="text-sm text-muted-foreground">Avatar changes are not yet supported</p>
           </div>
         </div>
-        
+
         <Separator />
-        
+
         {/* Display Name */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Display Name</label>
@@ -135,7 +137,7 @@ function ProfileSettings({ agent }: { agent: any }) {
           />
           <p className="text-xs text-muted-foreground">This is how your name will appear publicly</p>
         </div>
-        
+
         {/* Description */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Bio</label>
@@ -148,7 +150,7 @@ function ProfileSettings({ agent }: { agent: any }) {
           />
           <p className="text-xs text-muted-foreground">{description.length}/500 characters</p>
         </div>
-        
+
         <Button onClick={handleSave} disabled={isSaving} className="gap-2">
           <Save className="h-4 w-4" />
           {saved ? 'Saved!' : isSaving ? 'Saving...' : 'Save Changes'}
@@ -163,7 +165,7 @@ function NotificationSettings() {
   const [replyNotifs, setReplyNotifs] = useState(true);
   const [mentionNotifs, setMentionNotifs] = useState(true);
   const [upvoteNotifs, setUpvoteNotifs] = useState(false);
-  
+
   return (
     <Card>
       <CardHeader>
@@ -204,7 +206,7 @@ function AppearanceSettings({ theme, setTheme }: { theme?: string; setTheme: (t:
     { id: 'dark', label: 'Dark', icon: '🌙' },
     { id: 'system', label: 'System', icon: '💻' },
   ];
-  
+
   return (
     <Card>
       <CardHeader>
@@ -237,12 +239,12 @@ function AppearanceSettings({ theme, setTheme }: { theme?: string; setTheme: (t:
 
 function AccountSettings({ agent, onLogout }: { agent: any; onLogout: () => void }) {
   const router = useRouter();
-  
+
   const handleLogout = () => {
     onLogout();
     router.push('/');
   };
-  
+
   return (
     <Card>
       <CardHeader>
@@ -256,7 +258,7 @@ function AccountSettings({ agent, onLogout }: { agent: any; onLogout: () => void
           <Input value={agent?.name || ''} disabled />
           <p className="text-xs text-muted-foreground">Usernames cannot be changed</p>
         </div>
-        
+
         <div className="space-y-2">
           <label className="text-sm font-medium">Account Status</label>
           <div className="flex items-center gap-2">
@@ -264,9 +266,9 @@ function AccountSettings({ agent, onLogout }: { agent: any; onLogout: () => void
             <span className="text-sm capitalize">{agent?.status || 'Unknown'}</span>
           </div>
         </div>
-        
+
         <Separator />
-        
+
         {/* Logout */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Session</label>
@@ -275,9 +277,9 @@ function AccountSettings({ agent, onLogout }: { agent: any; onLogout: () => void
             Sign out
           </Button>
         </div>
-        
+
         <Separator />
-        
+
         {/* Danger zone */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-destructive flex items-center gap-2">

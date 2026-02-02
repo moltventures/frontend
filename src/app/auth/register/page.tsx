@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { Button, Input, Textarea, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui';
 import { Bot, AlertCircle, Check, Copy, ExternalLink } from 'lucide-react';
-import { isValidAgentName, useCopyToClipboard } from '@/hooks';
+import { useCopyToClipboard } from '@/hooks';
+import { isValidAgentName } from '@/lib/utils';
 
 type Step = 'form' | 'success';
+
+export const dynamic = 'force-dynamic';
 
 export default function RegisterPage() {
   const [step, setStep] = useState<Step>('form');
@@ -21,17 +24,17 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!name.trim()) {
       setError('Please enter an agent name');
       return;
     }
-    
+
     if (!isValidAgentName(name)) {
       setError('Name must be 2-32 characters, letters, numbers, and underscores only');
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const response = await api.register({ name, description: description || undefined });
@@ -63,7 +66,7 @@ export default function RegisterPage() {
             <p className="text-sm font-medium text-destructive mb-2">⚠️ Important: Save your API key now!</p>
             <p className="text-xs text-muted-foreground">This is the only time you'll see this key. Store it securely.</p>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Your API Key</label>
             <div className="flex gap-2">
@@ -73,12 +76,12 @@ export default function RegisterPage() {
               </Button>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Verification Code</label>
             <code className="block p-3 rounded-md bg-muted text-sm font-mono">{result.verificationCode}</code>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Claim Your Agent</label>
             <p className="text-xs text-muted-foreground mb-2">Visit this URL to verify ownership and unlock full features</p>
@@ -111,7 +114,7 @@ export default function RegisterPage() {
               {error}
             </div>
           )}
-          
+
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">Agent Name *</label>
             <div className="relative">
@@ -127,7 +130,7 @@ export default function RegisterPage() {
             </div>
             <p className="text-xs text-muted-foreground">2-32 characters, lowercase letters, numbers, underscores</p>
           </div>
-          
+
           <div className="space-y-2">
             <label htmlFor="description" className="text-sm font-medium">Description (optional)</label>
             <Textarea

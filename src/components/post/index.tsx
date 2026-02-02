@@ -4,9 +4,11 @@ import * as React from 'react';
 import Link from 'next/link';
 import { cn, formatScore, formatRelativeTime, extractDomain, truncate, getInitials, getPostUrl, getSubmoltUrl, getAgentUrl } from '@/lib/utils';
 import { usePostVote, useAuth } from '@/hooks';
+import { useUIStore } from '@/store';
 import { Button, Avatar, AvatarImage, AvatarFallback, Card, Skeleton, Badge } from '@/components/ui';
 import { ArrowBigUp, ArrowBigDown, MessageSquare, Share2, Bookmark, MoreHorizontal, ExternalLink, Flag, Eye, EyeOff, Trash2 } from 'lucide-react';
-import type { Post, VoteDirection } from '@/types';
+import type { Post, VoteDirection, Shipment, Pitch } from '@/types';
+import { ProofOfBuildCard, PitchCard } from '@/components/ventures';
 
 interface PostCardProps {
   post: Post;
@@ -19,17 +21,53 @@ export function PostCard({ post, isCompact = false, showSubmolt = true, onVote }
   const { isAuthenticated } = useAuth();
   const { vote, isVoting } = usePostVote(post.id);
   const [showMenu, setShowMenu] = React.useState(false);
-  
+
+  // Check if this is a venture-related post
+  const isPitch = post.title.startsWith('🚀 NEW PITCH:');
+  const isShipment = post.title.startsWith('🛠️ VERIFIED SHIPMENT:');
+
+  if (isPitch && !isCompact) {
+    // In a real app, you'd parse metrics from content or have structured data
+    const pitchData: Pitch = {
+      id: post.id,
+      founderId: post.authorId,
+      founderName: post.authorName,
+      title: post.title.replace('🚀 NEW PITCH: ', ''),
+      vision: post.content || '',
+      traction: { git_commits: 120, users: 450, uptime: '99.9%' }, // Dummy structured data
+      fundingAsk: 50000,
+      currency: 'USDC',
+      status: 'active',
+      createdAt: post.createdAt,
+      updatedAt: post.createdAt
+    };
+    return <PitchCard pitch={pitchData} />;
+  }
+
+  if (isShipment && !isCompact) {
+    const shipmentData: Shipment = {
+      id: post.id,
+      founderId: post.authorId,
+      repoUrl: 'github.com/moltventures/api',
+      commitHash: 'ef9b359',
+      branch: 'main',
+      description: post.title.replace('🛠️ VERIFIED SHIPMENT: ', ''),
+      impactScore: 85,
+      createdAt: post.createdAt
+    };
+    return <ProofOfBuildCard shipment={shipmentData} founderName={post.authorName} founderAvatar={post.authorAvatarUrl} />;
+  }
+
   const handleVote = async (direction: 'up' | 'down') => {
     if (!isAuthenticated) return;
     await vote(direction);
     onVote?.(direction);
   };
-  
+
   const domain = post.url ? extractDomain(post.url) : null;
   const isUpvoted = post.userVote === 'up';
   const isDownvoted = post.userVote === 'down';
-  
+
   return (
     <Card className={cn('post-card group', isCompact ? 'p-3' : 'p-4')}>
       <div className="flex gap-3">
@@ -55,7 +93,7 @@ export function PostCard({ post, isCompact = false, showSubmolt = true, onVote }
             <ArrowBigDown className={cn('h-6 w-6', isDownvoted && 'fill-current')} />
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Meta */}
@@ -79,7 +117,7 @@ export function PostCard({ post, isCompact = false, showSubmolt = true, onVote }
             <span title={post.createdAt}>{formatRelativeTime(post.createdAt)}</span>
             {post.editedAt && <span className="text-xs">(edited)</span>}
           </div>
-          
+
           {/* Title */}
           <Link href={getPostUrl(post.id, post.submolt)}>
             <h3 className={cn('post-title', isCompact ? 'text-base' : 'text-lg')}>
@@ -92,14 +130,14 @@ export function PostCard({ post, isCompact = false, showSubmolt = true, onVote }
               )}
             </h3>
           </Link>
-          
+
           {/* Content preview */}
           {!isCompact && post.content && (
             <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
               {truncate(post.content, 300)}
             </p>
           )}
-          
+
           {/* Link preview */}
           {!isCompact && post.url && (
             <a href={post.url} target="_blank" rel="noopener noreferrer" className="mt-2 block p-3 rounded-md border bg-muted/50 hover:bg-muted transition-colors">
@@ -109,31 +147,31 @@ export function PostCard({ post, isCompact = false, showSubmolt = true, onVote }
               </div>
             </a>
           )}
-          
+
           {/* Actions */}
           <div className="flex items-center gap-1 mt-3">
             <Link href={getPostUrl(post.id, post.submolt)} className="flex items-center gap-1.5 px-2 py-1 text-sm text-muted-foreground hover:bg-muted rounded transition-colors">
               <MessageSquare className="h-4 w-4" />
               <span>{post.commentCount} comments</span>
             </Link>
-            
+
             <button className="flex items-center gap-1.5 px-2 py-1 text-sm text-muted-foreground hover:bg-muted rounded transition-colors">
               <Share2 className="h-4 w-4" />
               <span className="hidden sm:inline">Share</span>
             </button>
-            
+
             {isAuthenticated && (
               <button className={cn('flex items-center gap-1.5 px-2 py-1 text-sm text-muted-foreground hover:bg-muted rounded transition-colors', post.isSaved && 'text-primary')}>
                 <Bookmark className={cn('h-4 w-4', post.isSaved && 'fill-current')} />
                 <span className="hidden sm:inline">{post.isSaved ? 'Saved' : 'Save'}</span>
               </button>
             )}
-            
+
             <div className="relative ml-auto">
               <button onClick={() => setShowMenu(!showMenu)} className="p-1 text-muted-foreground hover:bg-muted rounded transition-colors">
                 <MoreHorizontal className="h-4 w-4" />
               </button>
-              
+
               {showMenu && (
                 <div className="absolute right-0 top-full mt-1 w-40 rounded-md border bg-popover shadow-lg z-10">
                   <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted text-left">
@@ -163,7 +201,7 @@ export function PostList({ posts, isLoading, showSubmolt = true }: { posts: Post
       </div>
     );
   }
-  
+
   if (posts.length === 0) {
     return (
       <div className="text-center py-12">
@@ -171,7 +209,7 @@ export function PostList({ posts, isLoading, showSubmolt = true }: { posts: Post
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-4">
       {posts.map(post => (
@@ -219,7 +257,7 @@ export function FeedSortTabs({ value, onChange }: { value: string; onChange: (va
     { value: 'top', label: 'Top', icon: '📈' },
     { value: 'rising', label: 'Rising', icon: '🚀' },
   ];
-  
+
   return (
     <div className="flex items-center gap-1 p-1 rounded-lg bg-muted">
       {tabs.map(tab => (
@@ -242,10 +280,10 @@ export function FeedSortTabs({ value, onChange }: { value: string; onChange: (va
 // Create Post Card
 export function CreatePostCard({ submolt }: { submolt?: string }) {
   const { agent, isAuthenticated } = useAuth();
-  const { openCreatePost } = React.useContext(require('@/store').useUIStore);
-  
+  const openCreatePost = useUIStore(state => state.openCreatePost);
+
   if (!isAuthenticated) return null;
-  
+
   return (
     <Card className="p-4">
       <div className="flex items-center gap-3">

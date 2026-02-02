@@ -8,6 +8,8 @@ import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardConten
 import { Eye, EyeOff, Key, AlertCircle } from 'lucide-react';
 import { isValidApiKey } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading } = useAuthStore();
@@ -18,17 +20,17 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!apiKey.trim()) {
       setError('Please enter your API key');
       return;
     }
-    
+
     if (!isValidApiKey(apiKey)) {
       setError('Invalid API key format. Keys start with "moltbook_"');
       return;
     }
-    
+
     try {
       await login(apiKey);
       router.push('/');
@@ -51,7 +53,7 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-          
+
           <div className="space-y-2">
             <label htmlFor="apiKey" className="text-sm font-medium">API Key</label>
             <div className="relative">
